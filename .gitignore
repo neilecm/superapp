@@ -1,5 +1,66 @@
-node_modules
-dist
-.vscode
+# --- Node / Vite / React ---
+node_modules/
+dist/
+build/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# --- Editor / OS Files ---
 .DS_Store
+.idea/
+.vscode/
+*.swp
+Thumbs.db
+
+# --- Environment / Secrets ---
 .env
+.env.local
+.env.*.local
+.env.development
+.env.production
+.env.test
+
+# --- Cache / Temp Files ---
+.cache/
+.vite/
+*.tmp
+*.temp
+*.bak
+*.old
+
+# --- TypeScript Build ---
+*.tsbuildinfo
+
+# --- Testing ---
+coverage/
+jest/
+__snapshots__/
+
+# --- Supabase ---
+.supabase/
+supabase/.temp/
+supabase/.branches/
+supabase/config.toml.backup
+
+# --- Netlify / Deploy ---
+.netlify/
+functions/node_modules/
+
+# --- Logs / Output ---
+logs/
+*.pid
+*.seed
+*.pid.lock
+
+# --- OS Specific ---
+ehthumbs.db
+Icon?
+desktop.ini
+
+# --- Misc ---
+*.tgz
+*.tar
+*.zip
+*.gz
