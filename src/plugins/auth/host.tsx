@@ -1,4 +1,6 @@
-import { useEffect, useState } from "react";
+// src/plugins/auth/host.tsx
+import React, { useEffect, useState } from "react";
+import { createRoot } from "react-dom/client";
 import { createPortal } from "react-dom";
 import { bus } from "@/core/bus";
 import type { AuthResult, Session } from "./types";
@@ -16,15 +18,14 @@ function Host() {
 
   useEffect(() => {
     const offOpen = bus.on(OPEN, () => setOpen(true));
+
     const offSignOut = bus.on(SIGNOUT, async () => {
       const supa = await getSupabase();
-      if (supa) {
-        await supa.auth.signOut();
-      } else {
-        localStorage.removeItem("auth:mock:user");
-      }
+      if (supa) await supa.auth.signOut();
+      else localStorage.removeItem("auth:mock:user");
       bus.emit(SESSION_RESULT, { session: null as Session | null });
     });
+
     const offGet = bus.on(GET_SESSION, async () => {
       const supa = await getSupabase();
       let session: Session | null = null;
@@ -37,7 +38,27 @@ function Host() {
       }
       bus.emit(SESSION_RESULT, { session });
     });
-    return () => { offOpen(); offSignOut(); offGet(); };
+
+    // On startup (e.g., after OAuth redirect), broadcast current session
+    (async () => {
+      const supa = await getSupabase();
+      let session: Session | null = null;
+      if (supa) {
+        const { data } = await supa.auth.getSession();
+        session = toSession(data.session);
+      } else {
+        const txt = localStorage.getItem("auth:mock:user");
+        session = txt ? (JSON.parse(txt) as Session) : null;
+      }
+      bus.emit(SESSION_RESULT, { session });
+      if (session) bus.emit(DONE, { ok: true, session } as AuthResult);
+    })();
+
+    return () => {
+      offOpen();
+      offSignOut();
+      offGet();
+    };
   }, []);
 
   const close = () => setOpen(false);
@@ -60,13 +81,16 @@ function Host() {
   return createPortal(modal, document.body);
 }
 
-// ---- Auto-mount on import (zero App edits) ----
-let mounted = false;
-if (typeof document !== "undefined" && !mounted) {
-  mounted = true;
+// ---- Auto-mount once (HMR-safe singleton) ----
+declare global {
+  // eslint-disable-next-line no-var
+  var __AUTH_HOST_MOUNTED__: boolean | undefined;
+}
+
+if (typeof document !== "undefined" && !globalThis.__AUTH_HOST_MOUNTED__) {
+  globalThis.__AUTH_HOST_MOUNTED__ = true;
   const el = document.createElement("div");
+  el.id = "__auth_host__";
   document.body.appendChild(el);
-  import("react-dom/client").then(({ createRoot }) => {
-    createRoot(el).render(<Host />);
-  });
+  createRoot(el).render(<Host />);
 }
