@@ -1,20 +1,19 @@
 export function HomeScreen({
   email,
   onClose,
+  onStartShopping,
+  onViewOrders,
 }: {
   email?: string;
   onClose: () => void;
+  onStartShopping: () => void;
+  onViewOrders: () => void;
 }) {
   return (
     <div className="p-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold">
-          Welcome{email ? `, ${email}` : ""} 👋
-        </h2>
-        <button
-          onClick={onClose}
-          className="text-sm text-gray-500 hover:text-gray-700"
-        >
+        <h2 className="text-xl font-semibold">Welcome{email ? `, ${email}` : ""} 👋</h2>
+        <button onClick={onClose} className="text-sm text-gray-500 hover:text-gray-700">
           Close
         </button>
       </div>
@@ -32,10 +31,12 @@ export function HomeScreen({
       </div>
 
       <div className="mt-6 flex gap-2">
-        <button className="rounded-2xl bg-black text-white px-3 py-2">
+        <button className="rounded-2xl bg-black text-white px-3 py-2" onClick={onStartShopping}>
           Start shopping
         </button>
-        <button className="rounded-2xl bg-gray-200 px-3 py-2">View orders</button>
+        <button className="rounded-2xl bg-gray-200 px-3 py-2" onClick={onViewOrders}>
+          View orders
+        </button>
       </div>
     </div>
   );
